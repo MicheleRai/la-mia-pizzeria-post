@@ -33,8 +33,38 @@ namespace la_mia_pizzeria_static.Controllers
 
             return View(pizza);
         }
+		public IActionResult Create()
+		{
+            var pizza = new Pizza();
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+			return View(pizza);
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public IActionResult Create(Pizza data)
+		{
+			if (!ModelState.IsValid)
+			{
+				return View("Create", data);
+			}
+
+			using (PizzeriaContext ctx = new PizzeriaContext())
+			{
+				Pizza pizzaToCreate = new Pizza();
+				pizzaToCreate.Name = data.Name;
+				pizzaToCreate.Description = data.Description;
+				pizzaToCreate.Foto = data.Foto;
+				pizzaToCreate.Prezzo = data.Prezzo;
+
+				ctx.Pizze.Add(pizzaToCreate);
+				ctx.SaveChanges();
+
+				return RedirectToAction("Index");
+			}
+		}
+
+		[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
